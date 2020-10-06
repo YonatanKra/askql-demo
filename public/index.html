@@ -1,0 +1,69 @@
+<html>
+<head></head>
+<body>
+
+<div>
+    <label for="askCode">ASK Code:</label>
+    <textarea id="askCode"
+              value="ask {
+let arr = [];
+for (let i = 0; i < names:length; i = i + 1) {
+  arr = arr:set(i, { name: names:at(i), power: powers:at(i)});
+}
+arr
+}"></textarea>
+</div>
+<div>
+    <button type="button" onclick="submit()">Submit</button>
+</div>
+
+<ul id="output"></ul>
+<script>
+    document.getElementById('askCode').value = `
+    ask {
+        let arr = [];
+        for (let i = 0; i < names:length; i = i + 1) {
+          arr = arr:set(i, { name: names:at(i), power: powers:at(i)});
+        }
+        arr
+    }
+    `;
+    function printOut(data = []) {
+        const output = document.getElementById('output');
+        const wrappers = {
+            prefix: '<li>',
+            suffix: '</li>'
+        };
+        let htmlOutput = data.reduce((prevVal, nextVal, index) => {
+            return `
+                ${prevVal}
+                ${wrappers.prefix}
+                ${JSON.stringify(nextVal)}
+                ${wrappers.suffix}
+            `;
+        }, '');
+        output.innerHTML = htmlOutput;
+    }
+
+    function submit() {
+        const askCode = document.querySelector('#askCode').value;
+        const output = document.getElementById('output');
+        fetch('http://localhost:8080/ask', {
+            method: 'post',
+            body: JSON.stringify({code: askCode}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            if (!Array.isArray(data)) {
+                output.innerText = JSON.stringify(data);
+                return;
+            }
+            printOut(data);
+        });
+    }
+</script>
+</body>
+</html>
