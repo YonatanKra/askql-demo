@@ -10,23 +10,37 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
             integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        #output {
+            font-size: 1.5em;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="p-3">
-        <div style="min-height: 500px;" id="editor"></div>
-    </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm">
+            <div class="p-3">
+                <div style="min-height: 500px;" id="editor"></div>
+            </div>
 
-    <div class="p-3">
-        <button style="width: 100%;"
-                id="submitButton"
-                class="btn btn-primary"
-                type="button">Submit</button>
+            <div class="p-3">
+                <button style="width: 100%;"
+                        id="submitButton"
+                        class="btn btn-primary"
+                        type="button">Submit</button>
+            </div>
+        </div>
+        <div class="col-sm">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light"><h2 class="mx-auto">Results</h2></nav>
+            <div id="output"></div>
+        </div>
     </div>
 </div>
 
-<ul id="output"></ul>
+
 <script>
     require.config({paths: {'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs'}});
     window.MonacoEnvironment = {getWorkerUrl: () => proxy};
@@ -49,24 +63,41 @@
 </script>
 
 <script>
-    function printOut(data = []) {
-        const output = document.getElementById('output');
+    function dataToList(data = []) {
         const wrappers = {
-            prefix: '<li>',
+            prefix: '<li class="list-group-item">',
             suffix: '</li>'
         };
-        let htmlOutput = data.reduce((prevVal, nextVal, index) => {
+        if (!Array.isArray(data)) {
+            if (typeof data !== 'object') {
+                return `<span class="badge badge-primary">${data}</span>`;
+            }
+            data = Object.keys(data).map(key => {
+                return `<span class="badge badge-info">${key.toUpperCase()}</span>${dataToList(data[key])}`
+            })
+        }
+        return data.reduce((prevVal, nextVal, index) => {
             return `
                 ${prevVal}
                 ${wrappers.prefix}
-                ${JSON.stringify(nextVal)}
+                ${dataToList(nextVal)}
                 ${wrappers.suffix}
             `;
-        }, '');
-        output.innerHTML = htmlOutput;
+        }, '<ul class="list-group">') + '</ul>';
+    }
+    function printOut(data = []) {
+        const output = document.getElementById('output');
+        output.innerHTML = dataToList(data);
     }
 
     function setSubmit(editor) {
+        editor.setValue(`ask {
+    let arr = [];
+    for (let i = 0; i < names:length; i = i + 1) {
+      arr = arr:set(i, { name: names:at(i), power: powers:at(i)});
+    }
+    arr
+}`);
         const button = document.getElementById('submitButton');
         button.addEventListener('click', () => submit(editor));
     }
