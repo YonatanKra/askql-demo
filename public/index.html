@@ -40,7 +40,6 @@
     </div>
 </div>
 
-
 <script>
     require.config({paths: {'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs'}});
     window.MonacoEnvironment = {getWorkerUrl: () => proxy};
@@ -58,6 +57,7 @@
             language: 'javascript',
             theme: 'vs-dark'
         });
+        editor.setValue(`ask { 'Hello World!' } `);
         setSubmit(editor);
     });
 </script>
@@ -85,19 +85,13 @@
             `;
         }, '<ul class="list-group">') + '</ul>';
     }
+
     function printOut(data = []) {
         const output = document.getElementById('output');
         output.innerHTML = dataToList(data);
     }
 
     function setSubmit(editor) {
-        editor.setValue(`ask {
-    let arr = [];
-    for (let i = 0; i < names:length; i = i + 1) {
-      arr = arr:set(i, { name: names:at(i), power: powers:at(i)});
-    }
-    arr
-}`);
         const button = document.getElementById('submitButton');
         button.addEventListener('click', () => submit(editor));
     }
