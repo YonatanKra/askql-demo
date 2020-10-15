@@ -16,8 +16,11 @@ export async function logRequestMiddleware(req, res, next) {
 }
 
 export async function logResultsMiddleware(req, res, next) {
-    if (req instanceof Error) {
-        throw req;
-    }
     console.log(chalk.grey(`⬅️ ${JSON.stringify(res.locals.askResult)}`));
+    return next();
+}
+
+export async function errorHandler(error, req, res, next) {
+    res.json(error.message);
+    throw error;
 }

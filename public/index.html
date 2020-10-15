@@ -1,5 +1,8 @@
 <html>
 <head>
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+
     <link rel="stylesheet" data-name="vs/editor/editor.main"
           href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/loader.min.js"></script>
@@ -11,15 +14,99 @@
             integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
+
     <style>
+        .white {
+            background-color: #fdfdfe;
+        }
+        .gray {
+            background-color: #d6d8db;
+        }
+        .dark {
+            background-color: #28a745;
+            color: #fdfdfe;
+        }
+        pre {
+            white-space: pre-wrap;
+            color: red;
+            font-size: 16px;
+        }
         #output {
             font-size: 1.5em;
+        }
+        .hidden {
+            display: none;
+        }
+        img {
+            max-height: 500px;
+        }
+        .animated {
+            -webkit-animation: rotateY 1s 1 linear;
+            animation: rotateY 1s 1 linear;
+            animation-iteration-count: 1;
+        }
+        @-webkit-keyframes rotateY {
+            to { -webkit-transform: rotateY(180deg); }
+        }
+        @keyframes rotateY {
+            to { transform: rotateY(180deg); }
+        }
+
+        .revealOnScroll img{
+            height: 180px;
+            width: auto;
+        }
+
+        .logo-text img{
+            height: auto;
+            width: 260px;
+            margin-right: 3px;
+            margin-top: 20px;
+        }
+
+        .list-group-item {
+            background-color: transparent !important;
         }
     </style>
 </head>
 <body>
+<div id="demo-intro" class="text-center container-fluid">
+    <div class="row">
+        <div class="col-sm">
+        <div class="revealOnScroll animated"><img src="https://askql.org/images/askQL-icon.svg"></div>
+        <div class="logo-text"><img src="https://askql.org/images/askQL-text-dark.svg"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+        <div class="mt-4 relative">
+            <a href="https://github.com/xFAANG/askql" target="_blank" rel="noopener"
+                                      class="btn btn-sm github-stars btn-outline-secondary hvr-sweep-to-right relative"><i
+                class="fab fa-github mr-2" aria-hidden="true"></i>Star on GitHub
+            <div class="github-stars-counter justify-content-start align-items-center d-none">
+                <div class="arrow-left"></div>
+                <span class="tooltip-inner"><span class="stars-number">332</span></span></div>
+        </a></div>
+            <!-- /star button -->
+            <br/>
+        <button onclick="startDemo()"
+                id="startDemoButton"
+                class="btn btn-primary"
+                type="button">Start Demo</button>
+        </div>
+    </div>
+</div>
+<script>
+    function startDemo() {
+        const intro = document.getElementById('demo-intro');
+        const demo = document.getElementById('demo');
 
-<div class="container-fluid">
+        intro.style.display = 'none';
+        demo.style.display = 'inline';
+        setEditor();
+    }
+</script>
+<div id="demo" class="hidden container-fluid">
     <div class="row">
         <div class="col-sm">
             <div class="p-3">
@@ -41,49 +128,52 @@
 </div>
 
 <script>
-    require.config({paths: {'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs'}});
-    window.MonacoEnvironment = {getWorkerUrl: () => proxy};
-    let proxy = URL.createObjectURL(new Blob([`
+    function setEditor() {
+        require.config({paths: {'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs'}});
+        window.MonacoEnvironment = {getWorkerUrl: () => proxy};
+        let proxy = URL.createObjectURL(new Blob([`
     self.MonacoEnvironment = {
         baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min'
     };
     importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/base/worker/workerMain.min.js');
 `], {type: 'text/javascript'}));
-    require(["vs/editor/editor.main"], function () {
-        let editor = monaco.editor.create(document.getElementById('editor'), {
-            value: `function x() {
+        require(["vs/editor/editor.main"], function () {
+            let editor = monaco.editor.create(document.getElementById('editor'), {
+                value: `function x() {
   console.log("Hello world!");
 }`,
-            language: 'javascript',
-            theme: 'vs-dark'
+                language: 'javascript',
+                theme: 'vs-dark'
+            });
+            editor.setValue(`ask { 'Hello World!' } `);
+            setSubmit(editor);
         });
-        editor.setValue(`ask { 'Hello World!' } `);
-        setSubmit(editor);
-    });
+    }
 </script>
 
 <script>
-    function dataToList(data = []) {
+    function dataToList(data = [], odd) {
         const wrappers = {
             prefix: '<li class="list-group-item">',
             suffix: '</li>'
         };
         if (!Array.isArray(data)) {
             if (typeof data !== 'object') {
-                return `<span class="badge badge-primary">${data}</span>`;
+                return `<span class="badge">${data}</span>`;
             }
-            data = Object.keys(data).map(key => {
+            data = Object.keys(data).map((key) => {
                 return `<span class="badge badge-info">${key.toUpperCase()}</span>${dataToList(data[key])}`
             })
         }
+        const color = odd === undefined ? 'gray' : odd ? 'white' : 'dark';
         return data.reduce((prevVal, nextVal, index) => {
             return `
                 ${prevVal}
                 ${wrappers.prefix}
-                ${dataToList(nextVal)}
+                ${dataToList(nextVal, index % 2)}
                 ${wrappers.suffix}
             `;
-        }, '<ul class="list-group">') + '</ul>';
+        }, `<ul class="list-group ${color}">`) + '</ul>';
     }
 
     function printOut(data = []) {
@@ -108,10 +198,7 @@
         }).then(function (response) {
             return response.json();
         }).then(function (data) {
-            if (!Array.isArray(data)) {
-                output.innerText = JSON.stringify(data);
-                return;
-            }
+            if (typeof data === 'string') return output.innerHTML = `<pre>${data}</pre>`
             printOut(data);
         });
     }
