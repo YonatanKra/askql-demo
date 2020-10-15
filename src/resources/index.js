@@ -8,7 +8,7 @@ export const values = {
         'Kimiko'
     ],
     powers: [
-        'Remorsless',
+        'Remorseless',
         'Innocent',
         'Family guy',
         'MacGyver',
