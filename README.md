@@ -52,3 +52,16 @@ ask {
 	fetch('https://swapi.dev/api/people'):at('results')
 }
 ```
+
+### Query the Star Wars API and return custom data
+```
+ask {
+	fetch('https://swapi.dev/api/people'):at('results'):map(fun(swCharacter) {
+    {
+      Name: swCharacter.name,
+      Gender: swCharacter.gender,
+      'Hair Color': swCharacter.hair_color
+    }
+  })
+}
+```
