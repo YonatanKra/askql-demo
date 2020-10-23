@@ -143,7 +143,11 @@
   console.log("Hello world!");
 }`,
                 language: 'javascript',
-                theme: 'vs-dark'
+                theme: 'vs-dark',
+                fontSize: 18,
+                minimap: {
+                    enabled: false
+                }
             });
             editor.setValue(`ask { 'Hello World!' } `);
             setSubmit(editor);
